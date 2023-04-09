@@ -8,7 +8,7 @@ INITIAL_HP = 10
 VICTORY_PTS_TO_WIN = 20
 TOKYO_SLOTS = 1
 
-#next thing to do is the add the 'in tokyo' mechanic
+# next thing to add is to give players +1 VP when they move into Tokyo, and +2 VP when they start their turn in Tokyo (double check the rulebook for this.)
 
 
 def main():
@@ -215,20 +215,20 @@ def resolve_VPs(pturn, list_of_dice, stats):
     #this resolves the "I" dice
     for i in range(4):
         if num_I == i+3:
-            print("+" + str(i+1) + " VP!")
+            print("+" + str(i+1) + " VP to " + stats[pturn].player_number + "!")
             stats[pturn].VP += i+1
 
     #this resolves the "II" dice
     num_II = list_of_dice.count("II")
     for i in range(4):
         if num_II == i+3:
-            print("+" + str(i+2) + " VP!")
+            print("+" + str(i+2) + " VP to " + stats[pturn].player_number + "!")
             stats[pturn].VP += i+2
     #this resolves the "III" dice
     num_III = list_of_dice.count("III")
     for i in range(4):
         if num_III == i+3:
-            print("+" + str(i+3) + " VP!")
+            print("+" + str(i+3) + " VP to " + stats[pturn].player_number + "!")
             stats[pturn].VP += i+3
 
     return stats
@@ -263,10 +263,28 @@ def resolve_smash(pturn, list_of_dice, stats):
         print("-" + str(list_of_dice.count("SMASH")) + " HP to everyone outside of Tokyo: " + str([stats[key].player_number for key in stats if stats[key].in_Tokyo == False]))
     elif list_of_dice.count("SMASH") >0 and stats[pturn].in_Tokyo == False:
         print("-" + str(list_of_dice.count("SMASH")) + " HP to anyone in Tokyo: " + str([stats[key].player_number for key in stats if stats[key].in_Tokyo == True]))
+        #the people in tokyo need to decide if they want to get out of tokyo.  either or both of them can leave tokyo.
+        tokyo_move_out_option(pturn, stats)
     return stats
 
-#this will make the player move into tokyo if no one is in tokyo.
+def tokyo_move_out_option(pturn, stats):
+    for player in stats.values():
+        if player.in_Tokyo == True:
+            print(f"Player {player.player_number}, you have been hit!")
+            move_out = False
+            while not move_out:
+                move_out = input("Would you like to move out of Tokyo?  y/n ")
+                if move_out.lower() == ("y" or "yes"):
+                    print(f"{player.player_number}, you are moving out of Tokyo.")
+                    player.in_Tokyo = False
+                elif move_out.lower() == ("n" or "no"):
+                    print(f"{player.player_number}, you are staying in Tokyo.  Good luck!")
+                else:
+                    print("Please enter yes or no.")
+                    move_out == False
 
+
+#this will make the player move into tokyo if no one is in tokyo.
 def tokyo_movein(pturn, stats):
     #count how many people in tokyo
     tokyo_count = 0
